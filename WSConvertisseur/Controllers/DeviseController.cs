@@ -12,11 +12,10 @@ namespace WSConvertisseur.Controllers
     public class DeviseController : ApiController
     {
 
-        List<Devise> listDevises;
+        private static List<Devise> listDevises = new List<Devise>();
 
         public DeviseController()
-        {
-            listDevises = new List<Devise>();
+        { 
 
             listDevises.Add(new Devise(1, "Dollar", 1.08));
             listDevises.Add(new Devise(2, "Franc Suisse", 1.07));
@@ -42,17 +41,39 @@ namespace WSConvertisseur.Controllers
         }
 
         // POST: api/Devise
-        public void Post([FromBody]string value)
+        [ResponseType(typeof(Devise))]
+        public IHttpActionResult Post(Devise devise)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            listDevises.Add(devise);
+            return CreatedAtRoute("DefaultApi", new { id = devise.id }, devise);
         }
 
-        // PUT: api/Devise/5
-        public void Put(int id, [FromBody]string value)
+        [ResponseType(typeof(void))]
+        public IHttpActionResult Put(int id, Devise devise)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (id != devise.id)
+            {
+                return BadRequest();
+            }
+            int index = listDevises.FindIndex((d) => d.Id == id);
+            if (index < 0)
+            {
+                return NotFound();
+            }
+            listDevises[index] = devise;
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
-        // DELETE: api/Devise/5
-        public void Delete(int id)
+            // DELETE: api/Devise/5
+            public void Delete(int id)
         {
         }
     }
